@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+
+<head lang='zh'>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="renderer" content="webkit"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=0"/>
+    <title>websocket--luckysheet</title>
+
+    <link rel='stylesheet' href='/lib/plugins/css/pluginsCss.css'/>
+    <link rel='stylesheet' href='/lib/plugins/plugins.css'/>
+    <link rel='stylesheet' href='/lib/css/luckysheet.css'/>
+    <link rel='stylesheet' href='/lib/assets/iconfont/iconfont.css'/>
+    <script src="/lib/plugins/js/plugin.js"></script>
+    <script src="/lib/luckysheet.umd.js"></script>
+    <script src="/lib/luckyexcel.umd.js"></script>
+</head>
+
+<body>
+
+
+<div id="${wb.option.container}"
+     style="margin:0px;padding:0px;position:absolute;width:100%;height:100%;left: 0px;top: 0px;">
+    <p style="text-align: left;">
+        <input style="font-size: 16px;" type="file" id="Luckyexcel-demo-file" name="Luckyexcel-demo-file" change="importHandler" autocomplete="off"/>
+    </p>
+</div>
+
+</div>
+</body>
+<script>
+
+    var localurl =  "//" + window.location.host;
+
+    // 配置项
+    var options = {
+        container: "${wb.option.container}", // 设定DOM容器的id
+        title: "${wb.option.title}", // 设定表格名称
+        lang: "${wb.option.lang}",
+        allowUpdate: true,
+        loadUrl: window.location.protocol + localurl + "/load/${wb.id}",
+        loadSheetUrl: window.location.protocol + localurl + "/loadSheet/${wb.id}",
+        updateUrl: "ws://"+localurl + "/ws/" + Math.round(Math.random() * 100) + "/${wb.id}",
+        functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandle()">导出</button>',
+        // 更多其他设置...
+    }
+
+    // 初始化表格
+    luckysheet.create(options)
+
+    //导出函数
+    function exportHandle() {
+        var jsdata = new Array();
+
+        var sheets = luckysheet.getAllSheets();
+        for (var i = 0; i < sheets.length; i++) {
+            jsdata.push({
+                "name" : sheets[i].name,
+                "celldata" : sheets[i].celldata,
+                "config" : sheets[i].config,
+                "images" : sheets[i].images,
+                "frozen" : sheets[i].frozen,
+                "dataVerification" : sheets[i].dataVerification,
+
+            });
+        }
+        console.log("JSON.stringify(jsdata) = " + JSON.stringify(jsdata))
+        var form = document.createElement("form");
+        form.method = 'post';
+        form.action = '/excel/exportFile';
+        form.style = 'display:none';
+        form.enctype = 'multipart/form-data';
+        document.body.appendChild(form);
+        var newElement = document.createElement("textarea");
+        newElement.setAttribute("type", "hidden");
+        newElement.name = "exceldata";
+        newElement.value = JSON.stringify(luckysheet.getAllSheets());
+        form.appendChild(newElement);
+        form.submit();
+
+    }
+
+
+</script>
+<script>
+    function importHandler(){
+        let upload = document.getElementById("Luckyexcel-demo-file");
+        let selectADemo = document.getElementById("Luckyexcel-select-demo");
+        let downlodDemo = document.getElementById("Luckyexcel-downlod-file");
+        let mask = document.getElementById("lucky-mask-demo");
+        if(upload){
+
+            window.onload = () => {
+
+                upload.addEventListener("change", function(evt){
+                    var files = evt.target.files;
+                    if(files==null || files.length==0){
+                        alert("No files wait for import");
+                        return;
+                    }
+
+                    let name = files[0].name;
+                    let suffixArr = name.split("."), suffix = suffixArr[suffixArr.length-1];
+                    if(suffix!="xlsx"){
+                        alert("Currently only supports the import of xlsx files");
+                        return;
+                    }
+                    LuckyExcel.transformExcelToLucky(files[0], function(exportJson, luckysheetfile){
+
+                        if(exportJson.sheets==null || exportJson.sheets.length==0){
+                            alert("Failed to read the content of the excel file, currently does not support xls files!");
+                            return;
+                        }
+                        console.log(exportJson, luckysheetfile)
+                        console.log("exportJson");
+                        //ajax 请求 接口 将数据传递给后台 并返回一个id
+                        $.ajax({
+                            type: "POST",
+                            url: "/excel/importFile",
+                            data: {
+                                "exceldata": JSON.stringify(exportJson),
+
+                            },
+                            dataType: "json",
+                            success: function(data){
+                                console.log(data);
+                                if(data.code==200){
+                                    console.log(data);
+                                    window.location.href = "/index/"+data.data;
+                                }else{
+                                    alert(data.msg);
+                                }
+                            },
+                            error: function(data){
+                                console.log(data.toString());
+                                alert("Failed to import the excel file");
+                            }
+                        });
+
+
+
+                    });
+                });
+
+
+
+
+            }
+        }
+    }
+    importHandler();
+
+</script>
+</html>

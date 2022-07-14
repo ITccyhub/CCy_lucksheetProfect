@@ -1,0 +1,33 @@
+server:
+  port: 9999
+  tomcat:
+    # tomcat的URI编码
+    uri-encoding: UTF-8
+    # tomcatpost
+    max-http-form-post-size: -1
+
+
+spring:
+    application:
+        name: ec-sheet
+    freemarker:
+        request-context-attribute: request
+        #prefix: /templates/
+        suffix: .html
+        content-type: text/html
+        enabled: true
+        cache: false
+        charset: UTF-8
+        allow-request-override: false
+        expose-request-attributes: true
+        expose-session-attributes: true
+        expose-spring-macro-helpers: true
+    data:
+      mongodb:
+        uri: mongodb://admin:123456@192.168.1.111:27017/wb?authSource=admin&readPreference=primary&ssl=false
+    servlet:
+      multipart:
+          # 单个文件大小
+        max-file-size: 40MB
+          # 设置总上传的文件大小
+        max-request-size: 60MB

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head lang='zh'>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="renderer" content="webkit"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=0"/>
+    <title>ccy</title>
+
+    <link rel='stylesheet' href='/lib/plugins/css/pluginsCss.css'/>
+    <link rel='stylesheet' href='/lib/plugins/plugins.css'/>
+    <link rel='stylesheet' href='/lib/css/luckysheet.css'/>
+    <link rel='stylesheet' href='/lib/assets/iconfont/iconfont.css'/>
+    <script src="/lib/plugins/js/plugin.js"></script>
+    <script src="/lib/luckysheet.umd.js"></script>
+    <script src="/lib/luckyexcel.umd.js"></script>
+</head>
+<style>
+    #luckysheet {
+        margin:0px;
+        padding:0px;
+        position:absolute;
+        width:100%;
+        height:95%;
+        left: 0px;
+        top: 40px;
+    }
+</style>
+<body>
+
+
+
+    <input id="importExcel_input" type="file" name="file" placeholder="導入" />
+    <div id="luckysheet" ></div>
+
+
+</div>
+</body>
+<script>
+
+    var localurl =  "//" + window.location.host;
+
+    // 配置项
+    var options = {
+        container: 'luckysheet', //luckysheet为容器id
+        column: 20, //空表格默认的列数量
+        row: 20, //空表格默认的行数据量
+        // title:"title001",
+        lang: 'zh', // 设定表格语言
+        allowEdit: true,//作用：是否允许前台编辑
+        // allowUpdate: true,
+        allowCopy: true, //是否允许拷贝
+        showtoolbar: true, //是否第二列显示工具栏
+        showinfobar: true, //是否显示顶部名称栏
+        showsheetbar: true, //是否显示底部表格名称区域
+        showstatisticBar: true, //是否显示底部计数栏
+        pointEdit: false, //是否是编辑器插入表格模式
+        pointEditUpdate: null, //编辑器表格更新函数
+        // myFolderUrl: "/",//作用：左上角<返回按钮的链接
+        // forceCalculation: false,
+        // loadUrl: "downData",
+        // updateUrl: "ws://localhost:8080/UserService"
+
+        functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandle()">导出</button>'
+    }
+
+    $(function () {
+        luckysheet.create(options)
+    })
+    //监听文件上传
+    var input = document.querySelector('input');
+    input.addEventListener('change', importExcelsss);
+
+    /**
+     * 获取excel数据加載到頁面上
+     * @param event
+     */
+    function importExcelsss(event) {
+
+        var file = event.target.files[0];
+        var fileName = file.name;
+        fileName = fileName + "";
+        //將文件加載到頁面上
+        LuckyExcel.transformExcelToLucky(file, function(exportJson, luckysheetfile){
+
+            if(exportJson.sheets==null || exportJson.sheets.length==0){
+                alert("Failed to read the content of the excel file, currently does not support xls files!");
+                return;
+            }
+            console.log(exportJson, luckysheetfile);
+            window.luckysheet.destroy();
+
+            window.luckysheet.create({
+                container: 'luckysheet', //luckysheet is the container id
+                showinfobar:false,
+                lang: 'zh', // 设定表格语言
+                allowEdit: true,//作用：是否允许前台编辑
+                // allowUpdate: true,
+                allowCopy: true, //是否允许拷贝
+                showtoolbar: true, //是否第二列显示工具栏
+                showinfobar: true, //是否显示顶部名称栏
+                showsheetbar: true, //是否显示底部表格名称区域
+                showstatisticBar: true, //是否显示底部计数栏
+                pointEdit: false, //是否是编辑器插入表格模式
+                pointEditUpdate: null, //编辑器表格更新函数
+                data:exportJson.sheets,
+                title:exportJson.info.name,
+                userInfo:exportJson.info.name.creator,
+                functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandle()">导出</button>'
+            });
+        });
+
+    }
+
+    //导出函数
+    function exportHandle() {
+        var jsdata = new Array();
+        var sheets = luckysheet.getAllSheets();
+        for (var i = 0; i < sheets.length; i++) {
+            jsdata.push({
+                "name" : sheets[i].name,
+                "celldata" : sheets[i].celldata,
+                "config" : sheets[i].config,
+                "images" : sheets[i].images,
+                "frozen" : sheets[i].frozen,
+                "dataVerification" : sheets[i].dataVerification,
+
+            });
+        }
+        console.log("JSON.stringify(jsdata) = " + JSON.stringify(jsdata))
+        var form = document.createElement("form");
+        form.method = 'post';
+        form.action = '/excel/exportFile';
+        form.style = 'display:none';
+        form.enctype = 'multipart/form-data';
+        document.body.appendChild(form);
+        var newElement = document.createElement("textarea");
+        newElement.setAttribute("type", "hidden");
+        newElement.name = "exceldata";
+        newElement.value = JSON.stringify(luckysheet.getAllSheets());
+        form.appendChild(newElement);
+        form.submit();
+        alert("文件导出将消耗一定时间，请耐心等待！,48MB以上很容易卡死，请耐心等待！");
+
+    }
+
+
+</script>
+</html>
