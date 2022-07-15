@@ -16,7 +16,7 @@
 > 🚀Luckysheet is an online spreadsheet like excel that is powerful, simple to configure, and completely open source.
 
 ------
-## 演示地址: [点击访问](http://mars.free.idcfengye.com/index)
+
 
 
 ## QuickStart
@@ -46,3 +46,7 @@ docker run -d --name ecsheet --link mongo:mongo -p 9999:9999 ecsheet
 
 ### 4. 访问地址
 http://{你服务器的ip地址}:9999/index
+
+
+## 5. 该项目为本人根据 ecsheet 基于MongoDB存储 https://github.com/DilemmaVi/ecsheet  改进而来 结合了页面上所有lucksheet 的所有导入导出心得,该项目会一直更新下去
+详情可联系 1253799421@qq.com 
