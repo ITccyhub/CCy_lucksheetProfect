@@ -81,6 +81,7 @@
      * @param event
      */
     function importExcelsss(event) {
+        alert("导出过程中请勿关闭窗口，请稍后...\n如果遇到大文件导出未响应请点击等待");
 
         var file = event.target.files[0];
         var fileName = file.name;
@@ -111,8 +112,7 @@
                 data:exportJson.sheets,
                 title:exportJson.info.name,
                 userInfo:exportJson.info.name.creator,
-                functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandle()">导出</button>',
-                functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandles()">在线导出</button>'
+                functionButton : '<button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 5px;" onclick="exportHandle()">导出</button><button id="" class="btn btn-primary btn-danger" style=" padding:3px 6px; font-size: 12px; margin-right: 85px;" onclick="exportHandles()">在线导出</button>',
             });
         });
 
@@ -120,6 +120,7 @@
 
     //导出函数
     function exportHandle() {
+        alert("此导出为后台导出，大文件导出请点击等待,请勿关闭窗口\n如果遇到大文件导出不行，请切换至在线导出");
         var jsdata = new Array();
         var sheets = luckysheet.getAllSheets();
         for (var i = 0; i < sheets.length; i++) {

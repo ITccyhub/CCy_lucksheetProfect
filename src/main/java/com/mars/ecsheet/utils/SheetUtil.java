@@ -2,7 +2,7 @@ package com.mars.ecsheet.utils;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.json.JSONObject;
-import com.mars.ecsheet.entity.JsonRootBean;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,11 +33,11 @@ public class SheetUtil {
 
         return jsonObject;
     }
-    public static JSONObject getDefautOption(JsonRootBean jsonRootBean) {
+    public static JSONObject getDefautOption(cn.hutool.json.JSONObject info) {
 
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("container", "ecsheet");
-        jsonObject.put("title", jsonRootBean.getInfo().getName().replace(".xlsx", ""));
+        jsonObject.put("title", info.get("name").toString().replace(".xlsx", ""));
         jsonObject.put("lang", "zh");
         jsonObject.put("allowUpdate", true);
         jsonObject.put("loadUrl", "");
